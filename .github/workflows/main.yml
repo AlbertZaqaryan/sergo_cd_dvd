@@ -1,0 +1,42 @@
+name: CI-CD-Program-Docker
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Archive project
+      run: zip -r telegram_bot.zip . -x "*.git*" "__pycache__/*"
+
+    - name: Copy files to EC2 via SCP
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        source: "telegram_bot.zip"
+        target: "~/"
+
+    - name: SSH and run Docker container
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          rm -rf ~/telegram_bot
+          mkdir -p ~/telegram_bot
+          unzip -o ~/telegram_bot.zip -d ~/telegram_bot
+          cd ~/telegram_bot
+          sudo docker stop telegram_bot_container || true
+          sudo docker rm telegram_bot_container || true
+          sudo docker build -t telegram_bot_image .
+          sudo docker run -d --name telegram_bot_container telegram_bot_image
