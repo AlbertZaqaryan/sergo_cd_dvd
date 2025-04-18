@@ -2,6 +2,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 
+
+
 def parse_data(rate):
     firefox_options = Options()
     firefox_options.add_argument("--headless")
