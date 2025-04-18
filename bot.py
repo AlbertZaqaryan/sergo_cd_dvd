@@ -10,7 +10,8 @@ def start_bot(message):
     inline_USD = InlineKeyboardButton("USD", callback_data='1')
     inline_EUR = InlineKeyboardButton("EUR", callback_data='2')
     inline_RUB = InlineKeyboardButton("RUB", callback_data='3')
-    inline_markup.add(inline_USD, inline_EUR, inline_RUB)
+    inline_YU = InlineKeyboardButton("YU", callback_data='4')
+    inline_markup.add(inline_USD, inline_EUR, inline_RUB, inline_YU)
     bot.send_message(message.from_user.id, "Choose Rate", reply_markup=inline_markup)
 @bot.callback_query_handler(func=lambda call: True)
 def handle_callback(call):
